@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--* File: proj03EllmerLoverudeQian.Main.FXML-->
+<!--* Names: Ian Ellmer, Leo Qian, Jasper Loverude-->
+<!--* Class: CS361-->
+<!--* Project 3-->
+<!--* Date: 2/15/2022-->
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+
+<AnchorPane prefHeight="250.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proj03EllmerLoverudeQian.Controller">
+    <children>
+        <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <menus>
+                <Menu text="File">
+                    <items>
+                        <MenuItem text="About..." onAction="#handleAboutMenuItem"/>
+                        <SeparatorMenuItem> </SeparatorMenuItem>
+                        <MenuItem text="New" onAction="#handleNewMenuItem" />
+                        <MenuItem text="Open..." onAction="#handleOpenMenuItem"/>
+                        <MenuItem text="Close" onAction="#handleCloseMenuItem"/>
+                        <MenuItem text="Save" onAction="#handleSaveMenuItem"/>
+                        <MenuItem text="Save as..." onAction="#handleSaveAsMenuItem"/>
+                        <SeparatorMenuItem> </SeparatorMenuItem>
+                        <MenuItem text="Exit" onAction="#handleExitMenuItem"/>
+                    </items>
+                </Menu>
+                 <Menu text="Edit">
+                    <items>
+                        <MenuItem text="Undo" onAction="#handleUndo"/>
+                        <MenuItem text="Redo" onAction="#handleRedo"/>
+                        <MenuItem text="Cut" onAction="#handleCut"/>
+                        <MenuItem text="Copy" onAction="#handleCopy"/>
+                        <MenuItem text="Paste" onAction="#handlePaste"/>
+                        <MenuItem text="Select all" onAction="#handleSelectAll"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <TabPane fx:id="tabPane" layoutX="0.0" layoutY="30.0"> 
+            <Tab text="Untitled" onCloseRequest="#handleCloseMenuItem" id = "Untitled">
+                <TextArea fx:id="textBox"/> 
+            </Tab> 
+        </TabPane>
+    </children>
+</AnchorPane>

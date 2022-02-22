@@ -1,0 +1,12 @@
+#Hello{
+-fx-background-color: LightGreen;
+-fx-background-radius:  5;
+-fx-border-color:   black;
+-fx-border-radius:  5;
+}
+#Goodbye{
+-fx-background-color: pink;
+-fx-background-radius:  5;
+-fx-border-color:   black;
+-fx-border-radius:  5;
+}
