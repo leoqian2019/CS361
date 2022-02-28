@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--* File: proj04BayyurtDimitrovQian.Main.FXML-->
+<!--* Names: Izge Bayyurt, Anton Dimitrov, Leo Qian-->
+<!--* Class: CS361-->
+<!--* Project 4-->
+<!--* Date: 2/28/2022-->
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import org.fxmisc.richtext.CodeArea?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="300" prefWidth="400" xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="proj04BayyurtDimitrovQian.Controller">
+    <children>
+        <MenuBar>
+            <menus >
+                <Menu text="File" >
+                    <items>
+                        <MenuItem fx:id="about" text="About..." onAction="#handleAboutMenuItem" Accelerator="Ctrl+Shift+A"/>
+                        <SeparatorMenuItem> </SeparatorMenuItem>
+                        <MenuItem fx:id="newTab" text="New" onAction="#handleNewMenuItem" Accelerator="Ctrl+N"/>
+                        <MenuItem fx:id="open" text="Open..." onAction="#handleOpenMenuItem" Accelerator="Ctrl+O"/>
+                        <MenuItem fx:id="close" text="Close" onAction="#handleCloseMenuItem" Accelerator="Ctrl+Shift+C"/>
+                        <MenuItem fx:id="save" text="Save" onAction="#handleSaveMenuItem" Accelerator="Ctrl+S"/>
+                        <MenuItem fx:id="saveAs" text="Save As..." onAction="#handleSaveAsMenuItem" Accelerator="Ctrl+Shift+S"/>
+                        <SeparatorMenuItem> </SeparatorMenuItem>
+                        <MenuItem fx:id="exit" text="Exit" onAction="#handleExitMenuItem" Accelerator="Ctrl+Shift+E"/>
+                    </items>
+                </Menu>
+                 <Menu text="Edit" fx:id="edit">
+                    <items>
+                        <MenuItem fx:id="undo" text="Undo" onAction="#handleUndo" Accelerator="Ctrl+Z"/>
+                        <MenuItem fx:id="redo" text="Redo" onAction="#handleRedo" Accelerator="Ctrl+Shift+Z"/>
+                        <MenuItem fx:id="cut" text="Cut" onAction="#handleCut" Accelerator="Ctrl+X"/>
+                        <MenuItem fx:id="copy" text="Copy" onAction="#handleCopy" Accelerator="Ctrl+C"/>
+                        <MenuItem fx:id="paste" text="Paste" onAction="#handlePaste" Accelerator="Ctrl+V"/>
+                        <MenuItem fx:id="selectAll" text="Select all" onAction="#handleSelectAll" Accelerator="Ctrl+A"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <TabPane fx:id="tabPane" layoutX="0.0" layoutY="30.0" VBox.vgrow="ALWAYS">
+            <Tab text="Untitled" onCloseRequest="#handleCloseMenuItem" id = "Untitled">
+                <VirtualizedScrollPane VBox.vgrow="ALWAYS">
+                    <content>
+                        <CodeArea VBox.vgrow="ALWAYS"/>
+                    </content>
+                </VirtualizedScrollPane>
+            </Tab>
+        </TabPane>
+    </children>
+</VBox>
