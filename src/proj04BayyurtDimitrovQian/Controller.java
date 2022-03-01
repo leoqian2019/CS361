@@ -6,16 +6,17 @@
  * Date: 2/28/2022
  */
 
-package proj4BayyurtDimitrovQian;
+package proj04BayyurtDimitrovQian;
 
 
-import java.io.FileWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Date;
+import java.util.Optional;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.application.Platform;
@@ -23,9 +24,14 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
+import org.reactfx.Subscription;
 
 
 /**
@@ -38,12 +44,6 @@ public class Controller {
     @FXML
     private TabPane tabPane;
     @FXML
-    private MenuItem about;
-    @FXML
-    private MenuItem newTab;
-    @FXML
-    private MenuItem open;
-    @FXML
     private MenuItem close;
     @FXML
     private MenuItem save;
@@ -52,20 +52,12 @@ public class Controller {
     @FXML
     private Menu edit;
     @FXML
-    private MenuItem undo;
+    private CodeArea codeArea;
     @FXML
-    private MenuItem redo;
-    @FXML
-    private MenuItem cut;
-    @FXML
-    private MenuItem copy;
-    @FXML
-    private MenuItem paste;
-    @FXML
-    private MenuItem selectAll;
+    private VirtualizedScrollPane vScrollPane;
 
-    // initialize the simple date format
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMddyy-hhmmss.SSS");
+    // initialize the simple date format and stick to this format for the default new tab names
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMddyy-hhmmss.SSS");
 
 
     /**
@@ -83,7 +75,7 @@ public class Controller {
 
         aboutDialogBox.setContentText(
                 "Authors: Izge Bayyurt, Anton Dimitrov, Leo Qian"
-                        + "\nLast Modified: Feb 26, 2022");
+                        + "\nLast Modified: Feb 28, 2022");
 
         aboutDialogBox.show();
 
@@ -92,9 +84,7 @@ public class Controller {
 
     /**
      * Handler method for about new bar item. When the new item of the
-     * menu bar is clicked, an new tab is opened with text area.
-     * Calls helper function "getNextDefaultTitle", which returns a String like
-     * "Untitled-1", or "Untitled-2", based on what is available.
+     * menu bar is clicked, ane new tab is opened with code area.
      *
      * @see new tab and CodeArea
      */
@@ -102,6 +92,7 @@ public class Controller {
     private void handleNewMenuItem(Event event) {
 
         Tab newTab = new Tab();
+
 
         // trigger close menu item handler when tab is closed
         newTab.setOnCloseRequest((Event t) -> {
@@ -113,9 +104,15 @@ public class Controller {
 
         tabPane.getTabs().add(newTab);
 
-        VirtualizedScrollPane scrollPane = new VirtualizedScrollPane(new CodeArea());
+        CodeArea cd = new CodeArea();
+        VirtualizedScrollPane scrollPane = new VirtualizedScrollPane(cd);
 
         newTab.setContent(scrollPane);
+
+        cd.addEventHandler(KeyEvent.KEY_PRESSED, KE ->
+        {
+            textHighlight(cd);
+        });
 
         SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
 
@@ -123,12 +120,52 @@ public class Controller {
 
         // set the edit menu and other affected menu item to be enabled
         edit.setDisable(false);
+        for (MenuItem item:edit.getItems()) {
+            item.setDisable(false);
+        }
         close.setDisable(false);
         save.setDisable(false);
         saveAs.setDisable(false);
 
     }
 
+    /**
+     * Helper method to display error message to user when an exception is thrown
+     *
+     * @type this type is default since main need to use it to print possible exception message
+     */
+    void exceptionAlert(Exception ex){
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Exception Alert");
+        alert.setHeaderText("Thrown Exception");
+        alert.setContentText("An exception has been thrown.");
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.close();
+        String exceptionText = sw.toString();
+
+        Label label = new Label("The exception stacktrace is:");
+
+        TextArea textArea = new TextArea(exceptionText);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+        GridPane expContent = new GridPane();
+        expContent.setMaxWidth(Double.MAX_VALUE);
+        expContent.add(label, 0, 0);
+        expContent.add(textArea, 0, 1);
+
+        alert.getDialogPane().setExpandableContent(expContent);
+
+        alert.showAndWait();
+    }
 
     /**
      * Handler for "open" menu item
@@ -145,36 +182,39 @@ public class Controller {
      * </p>
      */
     @FXML
-    private void handleOpenMenuItem(Event event) throws IOException {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open your text file");
+    private void handleOpenMenuItem(Event event){
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open your text file");
 
-        // restrict the file type to only text files
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Text Files", "*.txt")
-        );
-        File selectedFile = fileChooser.showOpenDialog(tabPane.getScene().getWindow());
-
-        // if a valid file is selected
-        if (selectedFile != null) {
-            // get the path of the file selected
-            String filePath = selectedFile.getPath();
-            // read the content of the file to a string
-            String fileContent = new String(Files.readAllBytes(Paths.get(filePath)));
-            // generate a new tab and put the file content into the text area
-            handleNewMenuItem(event);
-            // get the current tab
-            Tab currentTab = getCurrentTab();
-            // get the current CodeArea
-            CodeArea codeArea = getCurrentCodeArea();
-            // set the content of the codeArea
-            codeArea.replaceText(fileContent);
-            // set the title of the tab
-            currentTab.setText(selectedFile.getName());
-            // assign the path of the file to the userdata field
-            currentTab.setUserData(filePath);
+            // restrict the file type to only text files
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Text Files", "*.txt")
+            );
+            File selectedFile = fileChooser.showOpenDialog(tabPane.getScene().getWindow());
+            if (selectedFile != null) {
+                // get the path of the file selected
+                String filePath = selectedFile.getPath();
+                // read the content of the file to a string
+                String fileContent = new String(Files.readAllBytes(Paths.get(filePath)));
+                // generate a new tab and put the file content into the text area
+                handleNewMenuItem(event);
+                // get the current tab
+                Tab currentTab = getCurrentTab();
+                // get the current CodeArea
+                CodeArea codeArea = getCurrentCodeArea();
+                // set the content of the codeArea
+                codeArea.replaceText(fileContent);
+                // start text highlighting
+                textHighlight(codeArea);
+                // set the title of the tab
+                currentTab.setText(selectedFile.getName());
+                // assign the path of the file to the userdata field
+                currentTab.setUserData(filePath);
+            }
+        } catch(Exception ex){
+            exceptionAlert(ex);
         }
-
     }
 
     /**
@@ -183,7 +223,7 @@ public class Controller {
      * if any changes has been made since the last save event, a dialog appears asking if the user
      * wants to save again
      * <p>
-     * After the user makes selection the tab is closed
+     * If the user choose no, the tab will be closed without saving the changes
      * <p>
      * If no changes has been made, the tab also closes
      * </p>
@@ -202,7 +242,7 @@ public class Controller {
         // check if changes has been made
         boolean changed = true;
 
-        // check if file is saved successfully
+        // check if the tab should be closed
         AtomicBoolean discardTab = new AtomicBoolean(false);
 
         // if file path is valid
@@ -218,8 +258,8 @@ public class Controller {
                     if (currentContent.equals(fileContent)) {
                         changed = false;
                     }
-                } catch (IOException ex) {
-                    // show an except pop up
+                } catch (Exception ex) {
+                    exceptionAlert(ex);
                 }
             }
         }
@@ -239,6 +279,7 @@ public class Controller {
                     discardTab.set(handleSaveMenuItem(event));
 
                 } else if (type == cancelButton) {
+                    // if cancel button is clicked, do nothign
                     event.consume();
 
                 } else {
@@ -259,6 +300,9 @@ public class Controller {
             //      and other affected menu items to be disabled
             if (getCurrentTab() == null) {
                 edit.setDisable(true);
+                for (MenuItem item:edit.getItems()) {
+                    item.setDisable(true);
+                }
                 close.setDisable(true);
                 save.setDisable(true);
                 saveAs.setDisable(true);
@@ -270,10 +314,12 @@ public class Controller {
 
     /**
      * Handler for "save" menu item
-     * When the "save" button is clicked, if file of the name of the tab exist in the current directory, it will
-     * overwrite the file with the content in the textbox of the current tab
+     * When the "save" button is clicked, if the file of the name of the tab exist in the directory, it will
+     * overwrite the file with the content in the code area of the current tab
      * <p>
      * If that file didn't exist, it will call the save as menu item for the user to put in a new name
+     *
+     * @return return the status of the file save process
      */
     @FXML
     private boolean handleSaveMenuItem(Event event) {
@@ -317,6 +363,8 @@ public class Controller {
      * message; At the same time, the tab name will be changed to the file path saved
      *
      * @Give credit to http://java-buddy.blogspot.com/
+     *
+     * @return return true when file is saved, otherwise, return false
      */
     @FXML
     private boolean handleSaveAsMenuItem(Event event) {
@@ -339,6 +387,7 @@ public class Controller {
 
         if (file != null) {
             Alert alert;
+            // if file is saved correctly, show an alert box with corresponding message
             if (saveFile(codeArea.getText(), file)) {
                 alert = new Alert(AlertType.INFORMATION);
                 alert.setTitle("Success");
@@ -351,6 +400,7 @@ public class Controller {
 
                 // return true when the process is successful
                 return true;
+                // otherwise, show error message and return false
             } else {
                 alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Error");
@@ -383,7 +433,8 @@ public class Controller {
             fileWriter.write(content);
             fileWriter.close();
             return true;
-        } catch (IOException ex) {
+        } catch (Exception ex) {
+            exceptionAlert(ex);
             return false;
         }
 
@@ -402,7 +453,7 @@ public class Controller {
      * @type this is a method with default type since the Main class needs to access it
      */
     @FXML
-    void handleExitMenuItem(Event event) {
+    public void handleExitMenuItem(Event event) {
         while (tabPane.getSelectionModel().getSelectedItem() != null) {
             Tab previousTab = tabPane.getSelectionModel().getSelectedItem();
             handleCloseMenuItem(event);
@@ -490,6 +541,49 @@ public class Controller {
     @FXML
     private void handleSelectAll(Event event) {
         getCurrentCodeArea().selectAll();
+    }
+
+    private void textHighlight(CodeArea codeArea) {
+        KeywordHighlighter keywordHighlighter =
+                new KeywordHighlighter(codeArea, Executors.newSingleThreadExecutor());
+        codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+        Subscription cleanupWhenDone = codeArea.multiPlainChanges()
+                .successionEnds(Duration.ofMillis(500))
+                .retainLatestUntilLater(keywordHighlighter.getExecutor())
+                .supplyTask(keywordHighlighter::computeHighlightingAsync)
+                .awaitLatest(codeArea.multiPlainChanges())
+                .filterMap(t -> {
+                    if (t.isSuccess()) {
+                        return Optional.of(t.get());
+                    } else {
+                        t.getFailure().printStackTrace();
+                        return Optional.empty();
+                    }
+                })
+                .subscribe(keywordHighlighter::applyHighlighting);
+    }
+
+    @FXML
+    private void textHighlight(Event event) {
+        KeywordHighlighter keywordHighlighter =
+                new KeywordHighlighter(codeArea, Executors.newSingleThreadExecutor());
+        codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+        Subscription cleanupWhenDone = codeArea.multiPlainChanges()
+                .successionEnds(Duration.ofMillis(500))
+                .retainLatestUntilLater(keywordHighlighter.getExecutor())
+                .supplyTask(keywordHighlighter::computeHighlightingAsync)
+                .awaitLatest(codeArea.multiPlainChanges())
+                .filterMap(t -> {
+                    if (t.isSuccess()) {
+                        return Optional.of(t.get());
+                    } else {
+                        t.getFailure().printStackTrace();
+                        return Optional.empty();
+                    }
+                })
+                .subscribe(keywordHighlighter::applyHighlighting);
+
+        // cleanupWhenDone.unsubscribe();
     }
 
 

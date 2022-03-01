@@ -49,9 +49,9 @@
         </MenuBar>
         <TabPane fx:id="tabPane" layoutX="0.0" layoutY="30.0" VBox.vgrow="ALWAYS">
             <Tab text="Untitled" onCloseRequest="#handleCloseMenuItem" id = "Untitled">
-                <VirtualizedScrollPane VBox.vgrow="ALWAYS">
+                <VirtualizedScrollPane VBox.vgrow="ALWAYS" fx:id="vScrollPane">
                     <content>
-                        <CodeArea VBox.vgrow="ALWAYS"/>
+                        <CodeArea VBox.vgrow="ALWAYS" fx:id="codeArea" onKeyTyped="#textHighlight"/>
                     </content>
                 </VirtualizedScrollPane>
             </Tab>
