@@ -24,25 +24,25 @@
             <menus >
                 <Menu text="File" >
                     <items>
-                        <MenuItem fx:id="about" text="About..." onAction="#handleAboutMenuItem" Accelerator="Ctrl+Shift+A"/>
+                        <MenuItem fx:id="about" text="About..." onAction="#handleAboutMenuItem" Accelerator="Shortcut+Shift+A"/>
                         <SeparatorMenuItem> </SeparatorMenuItem>
-                        <MenuItem fx:id="newTab" text="New" onAction="#handleNewMenuItem" Accelerator="Ctrl+N"/>
-                        <MenuItem fx:id="open" text="Open..." onAction="#handleOpenMenuItem" Accelerator="Ctrl+O"/>
-                        <MenuItem fx:id="close" text="Close" onAction="#handleCloseMenuItem" Accelerator="Ctrl+Shift+C"/>
-                        <MenuItem fx:id="save" text="Save" onAction="#handleSaveMenuItem" Accelerator="Ctrl+S"/>
-                        <MenuItem fx:id="saveAs" text="Save As..." onAction="#handleSaveAsMenuItem" Accelerator="Ctrl+Shift+S"/>
+                        <MenuItem fx:id="newTab" text="New" onAction="#handleNewMenuItem" Accelerator="Shortcut+N"/>
+                        <MenuItem fx:id="open" text="Open..." onAction="#handleOpenMenuItem" Accelerator="Shortcut+O"/>
+                        <MenuItem fx:id="close" text="Close" onAction="#handleCloseMenuItem" Accelerator="Shortcut+Shift+C"/>
+                        <MenuItem fx:id="save" text="Save" onAction="#handleSaveMenuItem" Accelerator="Shortcut+S"/>
+                        <MenuItem fx:id="saveAs" text="Save As..." onAction="#handleSaveAsMenuItem" Accelerator="Shortcut+Shift+S"/>
                         <SeparatorMenuItem> </SeparatorMenuItem>
-                        <MenuItem fx:id="exit" text="Exit" onAction="#handleExitMenuItem" Accelerator="Ctrl+Shift+E"/>
+                        <MenuItem fx:id="exit" text="Exit" onAction="#handleExitMenuItem" Accelerator="Shortcut+Shift+E"/>
                     </items>
                 </Menu>
                  <Menu text="Edit" fx:id="edit">
                     <items>
-                        <MenuItem fx:id="undo" text="Undo" onAction="#handleUndo" Accelerator="Ctrl+Z"/>
-                        <MenuItem fx:id="redo" text="Redo" onAction="#handleRedo" Accelerator="Ctrl+Shift+Z"/>
-                        <MenuItem fx:id="cut" text="Cut" onAction="#handleCut" Accelerator="Ctrl+X"/>
-                        <MenuItem fx:id="copy" text="Copy" onAction="#handleCopy" Accelerator="Ctrl+C"/>
-                        <MenuItem fx:id="paste" text="Paste" onAction="#handlePaste" Accelerator="Ctrl+V"/>
-                        <MenuItem fx:id="selectAll" text="Select all" onAction="#handleSelectAll" Accelerator="Ctrl+A"/>
+                        <MenuItem fx:id="undo" text="Undo" onAction="#handleUndo" Accelerator="Shortcut+Z"/>
+                        <MenuItem fx:id="redo" text="Redo" onAction="#handleRedo" Accelerator="Shortcut+Shift+Z"/>
+                        <MenuItem fx:id="cut" text="Cut" onAction="#handleCut" Accelerator="Shortcut+X"/>
+                        <MenuItem fx:id="copy" text="Copy" onAction="#handleCopy" Accelerator="Shortcut+C"/>
+                        <MenuItem fx:id="paste" text="Paste" onAction="#handlePaste" Accelerator="Shortcut+V"/>
+                        <MenuItem fx:id="selectAll" text="Select all" onAction="#handleSelectAll" Accelerator="Shortcut+A"/>
                     </items>
                 </Menu>
             </menus>

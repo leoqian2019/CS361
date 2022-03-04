@@ -27,33 +27,39 @@ import java.io.IOException;
 public class Main extends Application{
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) {
+        try {
+            // Load fxml file
+            FXMLLoader loader = new FXMLLoader((getClass().getResource("Main.fxml")));
+            Parent root = loader.load();
+            primaryStage.setTitle("Project 4");
+            Scene scene = new Scene(root);
 
-        // Load fxml file
-        FXMLLoader loader = new FXMLLoader((getClass().getResource("Main.fxml")));
-        Parent root = loader.load();
-        primaryStage.setTitle("Project 4");
-        Scene scene = new Scene(root);
+            //scene.getStylesheets().add(getClass().getResource("java-keywords.css").toExternalForm());
 
-        //scene.getStylesheets().add(getClass().getResource("java-keywords.css").toExternalForm());
+            // Load css file
+            scene.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
+            primaryStage.setScene(scene);
 
-        // Load css file
-        scene.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        primaryStage.setScene(scene);
+            // Set the minimum height and width of th main stage
+            primaryStage.setMinHeight(250);
+            primaryStage.setMinWidth(400);
 
-        // Set the minimum height and width of th main stage
-        primaryStage.setMinHeight(250);
-        primaryStage.setMinWidth(400);
+            // attach an event handler with the close box of the primary stage
+            Controller controller = loader.getController();
+            primaryStage.setOnCloseRequest(event -> {
+                controller.handleExitMenuItem(event);
+                event.consume();
+            });
 
-        // attach an event handler with the close box of the primary stage
-        Controller controller = loader.getController();
-        primaryStage.setOnCloseRequest(event -> {
-            controller.handleExitMenuItem(event);
-            event.consume();
-        });
+            // Show the stage
+            primaryStage.show();
+        }
+        catch (Exception e) {
+            Controller controller = new Controller();
+            controller.exceptionAlert(e);
+        }
 
-        // Show the stage
-        primaryStage.show();
 
     }
 

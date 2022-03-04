@@ -53,9 +53,6 @@ public class Controller {
     private Menu edit;
     @FXML
     private CodeArea codeArea;
-    @FXML
-    private VirtualizedScrollPane vScrollPane;
-
     // initialize the simple date format and stick to this format for the default new tab names
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMddyy-hhmmss.SSS");
 
@@ -92,8 +89,6 @@ public class Controller {
     private void handleNewMenuItem(Event event) {
 
         Tab newTab = new Tab();
-
-
         // trigger close menu item handler when tab is closed
         newTab.setOnCloseRequest((Event t) -> {
             handleCloseMenuItem(t);
@@ -101,22 +96,21 @@ public class Controller {
 
         // set new tabs with unique initial name
         newTab.setText(simpleDateFormat.format(new Date()));
-
         tabPane.getTabs().add(newTab);
-
         CodeArea cd = new CodeArea();
         VirtualizedScrollPane scrollPane = new VirtualizedScrollPane(cd);
-
         newTab.setContent(scrollPane);
 
-        cd.addEventHandler(KeyEvent.KEY_PRESSED, KE ->
-        {
-            textHighlight(cd);
+        // add event handler to the code area when key is pressed
+        cd.addEventHandler(KeyEvent.KEY_PRESSED, KE -> {
+            textHighlight();
         });
 
         SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
-
         selectionModel.select(newTab);
+
+        // start text highlighting
+        textHighlight();
 
         // set the edit menu and other affected menu item to be enabled
         edit.setDisable(false);
@@ -171,15 +165,6 @@ public class Controller {
      * Handler for "open" menu item
      * When the "open" button is clicked, a fileChooserDialog appears,
      * and the user has to select a valid text file to proceed
-     * <p>
-     * If a valid file is selected, the program reads the file's content as String
-     * and that String is put as content of the codeArea of the new tab created
-     * <p>
-     * The new tab will also be initiated with the name of the file opened
-     * The file path will be saved to the tab's userdata field
-     * <p>
-     * Exception will be thrown when encountering issues with reading the files
-     * </p>
      */
     @FXML
     private void handleOpenMenuItem(Event event){
@@ -189,7 +174,8 @@ public class Controller {
 
             // restrict the file type to only text files
             fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("Text Files", "*.txt")
+                    new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                    new FileChooser.ExtensionFilter("Java Files","*.java")
             );
             File selectedFile = fileChooser.showOpenDialog(tabPane.getScene().getWindow());
             if (selectedFile != null) {
@@ -205,8 +191,6 @@ public class Controller {
                 CodeArea codeArea = getCurrentCodeArea();
                 // set the content of the codeArea
                 codeArea.replaceText(fileContent);
-                // start text highlighting
-                textHighlight(codeArea);
                 // set the title of the tab
                 currentTab.setText(selectedFile.getName());
                 // assign the path of the file to the userdata field
@@ -222,11 +206,6 @@ public class Controller {
      * When the "Close" button is clicked, or when the tab is closed, the program would check
      * if any changes has been made since the last save event, a dialog appears asking if the user
      * wants to save again
-     * <p>
-     * If the user choose no, the tab will be closed without saving the changes
-     * <p>
-     * If no changes has been made, the tab also closes
-     * </p>
      */
     @FXML
     private void handleCloseMenuItem(Event event) {
@@ -316,10 +295,10 @@ public class Controller {
      * Handler for "save" menu item
      * When the "save" button is clicked, if the file of the name of the tab exist in the directory, it will
      * overwrite the file with the content in the code area of the current tab
-     * <p>
+     *
      * If that file didn't exist, it will call the save as menu item for the user to put in a new name
      *
-     * @return return the status of the file save process
+     * @return returns true if the file is saved, and false if not saved
      */
     @FXML
     private boolean handleSaveMenuItem(Event event) {
@@ -378,10 +357,11 @@ public class Controller {
         fileChooser.setTitle("Save as");
 
         //Set extension filter
-        FileChooser.ExtensionFilter extFilter =
+        FileChooser.ExtensionFilter txtFilter =
                 new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
-        fileChooser.getExtensionFilters().add(extFilter);
-
+        FileChooser.ExtensionFilter javaFilter =
+                new FileChooser.ExtensionFilter("JAVA files (*.java)","*.java");
+        fileChooser.getExtensionFilters().addAll(txtFilter,javaFilter);
         //Show save file dialog
         File file = fileChooser.showSaveDialog(tabPane.getScene().getWindow());
 
@@ -434,7 +414,6 @@ public class Controller {
             fileWriter.close();
             return true;
         } catch (Exception ex) {
-            exceptionAlert(ex);
             return false;
         }
 
@@ -444,7 +423,7 @@ public class Controller {
      * Handler method for exit menu bar item. When exit item of the menu
      * bar is clicked, the window disappears and the application quits after going
      * through each tab and ask user about the unsaved change.
-     * <p>
+     *
      * If the user clicked cancel at any point, the operation is stopped
      *
      * @param event An ActionEvent object that gives information about the event
@@ -454,8 +433,8 @@ public class Controller {
      */
     @FXML
     public void handleExitMenuItem(Event event) {
-        while (tabPane.getSelectionModel().getSelectedItem() != null) {
-            Tab previousTab = tabPane.getSelectionModel().getSelectedItem();
+        while (getCurrentTab() != null) {
+            Tab previousTab = getCurrentTab();
             handleCloseMenuItem(event);
             Tab currentTab = getCurrentTab();
             // if the tab is not closed, stop the operation of this function
@@ -543,28 +522,12 @@ public class Controller {
         getCurrentCodeArea().selectAll();
     }
 
-    private void textHighlight(CodeArea codeArea) {
-        KeywordHighlighter keywordHighlighter =
-                new KeywordHighlighter(codeArea, Executors.newSingleThreadExecutor());
-        codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
-        Subscription cleanupWhenDone = codeArea.multiPlainChanges()
-                .successionEnds(Duration.ofMillis(500))
-                .retainLatestUntilLater(keywordHighlighter.getExecutor())
-                .supplyTask(keywordHighlighter::computeHighlightingAsync)
-                .awaitLatest(codeArea.multiPlainChanges())
-                .filterMap(t -> {
-                    if (t.isSuccess()) {
-                        return Optional.of(t.get());
-                    } else {
-                        t.getFailure().printStackTrace();
-                        return Optional.empty();
-                    }
-                })
-                .subscribe(keywordHighlighter::applyHighlighting);
-    }
-
+    /**
+     * Helper method for Highlighting code in code area
+     */
     @FXML
-    private void textHighlight(Event event) {
+    private void textHighlight() {
+        CodeArea codeArea = getCurrentCodeArea();
         KeywordHighlighter keywordHighlighter =
                 new KeywordHighlighter(codeArea, Executors.newSingleThreadExecutor());
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
@@ -582,8 +545,6 @@ public class Controller {
                     }
                 })
                 .subscribe(keywordHighlighter::applyHighlighting);
-
-        // cleanupWhenDone.unsubscribe();
     }
 
 
