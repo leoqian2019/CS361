@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+File: proj5CorrellHilisonQian.Main.fxml
+Names: Leo Qian, Cassidy Correl, Nico Hillison
+Class: CS361
+Project 5
+Date: 3/7/2022
+-->
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.fxmisc.richtext.StyleClassedTextArea?>
+
+
+
+
+<!-- Encase all elements in a resizing box -->
+<?import javafx.scene.control.TitledPane?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+      minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@Main.css"
+      xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="proj5CorrellHilisonQian.Controller">
+
+    <!-- Create a bar for the main menu -->
+    <MenuBar>
+
+        <!-- Create the File menu -->
+        <Menu mnemonicParsing="false" text="File">
+            <MenuItem mnemonicParsing="false" onAction="#handleAbout"
+                      text="About..." />
+            <SeparatorMenuItem disable="true" mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#handleNew"
+                      text="New " accelerator="Shortcut+N"/>
+            <MenuItem mnemonicParsing="false" onAction="#handleOpen"
+                      text="Open..." accelerator="Shortcut+O"/>
+            <MenuItem fx:id="close" mnemonicParsing="false" onAction="#handleClose"
+                      text="Close " accelerator="Shortcut+W"/>
+            <MenuItem fx:id="save" mnemonicParsing="false" onAction="#handleSave"
+                      text="Save" accelerator="Shortcut+S"/>
+            <MenuItem fx:id="saveAs" mnemonicParsing="false" onAction="#handleSaveAs"
+                      text="Save as..." accelerator="Shortcut+Alt+Shift+S"/>
+            <SeparatorMenuItem disable="true" mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#handleExit"
+                      text="Exit" accelerator="Shortcut+Q"/>
+        </Menu>
+
+        <!-- Create the Edit menu -->
+        <Menu fx:id="edit" mnemonicParsing="false" text="Edit">
+            <MenuItem mnemonicParsing="false"
+                      text="Undo" onAction="#handleUndo" accelerator="Shortcut+Z"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Redo" onAction="#handleRedo" accelerator="Shortcut+Y"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Cut" onAction="#handleCut" accelerator="Shortcut+X"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Copy" onAction="#handleCopy" accelerator="Shortcut+C"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Paste" onAction="#handlePaste" accelerator="Shortcut+V"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Select all" onAction="#handleSelectAll" accelerator="Shortcut+A"/>
+        </Menu>
+    </MenuBar>
+
+    <!-- Construct toolbar for buttons -->
+    <ToolBar prefHeight="40.0" prefWidth="200.0">
+        <Button fx:id="compile" mnemonicParsing="false"
+                onAction="#handleCompileButton" text="Compile" />
+        <Button fx:id="compileRun" mnemonicParsing="false"
+                onAction="#handleCompileRunButton" text="Compile and Run" />
+        <Button fx:id="stop" mnemonicParsing="false"
+                onAction="#handleStopButton" text="Stop" disable="true"/>
+    </ToolBar>
+
+    <!-- Make a tab pane to hold all open tabs, give it an initial tab -->
+    <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0"
+             tabClosingPolicy="ALL_TABS" VBox.vgrow="ALWAYS">
+        <Tab text="Untitled Tab" onCloseRequest="#handleClose">
+            <AnchorPane>
+
+            </AnchorPane>
+        </Tab>
+    </TabPane>
+
+    <!-- Console area -->
+    <TitledPane text="Console" >
+        <content>
+            <StyleClassedTextArea fx:id="styleclassedtextarea"/>
+        </content>
+    </TitledPane>
+
+</VBox>

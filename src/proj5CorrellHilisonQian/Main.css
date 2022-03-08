@@ -1,0 +1,31 @@
+/*
+ * File: proj5CorrellHilisonQian.Main.css
+ * Names: Leo Qian, Cassidy Correl, Nico Hillison
+ * Class: CS361
+ * Project 5
+ * Date: 3/7/2022
+ */
+
+/* Style the Compile button */
+#compile {
+	-fx-background-color: #ADD8E6;
+	-fx-border-radius: .25em; 
+	-fx-background-radius: .25em; 
+	-fx-border-color: #000000;
+}
+
+/* Style the Compile and Run button */
+#compileRun{
+	-fx-background-color: #98FB98;
+	-fx-border-radius: .25em; 
+	-fx-background-radius: .25em;  
+	-fx-border-color: #000000;
+}
+
+/* Style the Stop button */
+#stop{
+	-fx-background-color: #E78587;
+	-fx-border-radius: .25em;
+	-fx-background-radius: .25em;
+	-fx-border-color: #000000;
+}

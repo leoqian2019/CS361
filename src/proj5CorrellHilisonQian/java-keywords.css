@@ -1,0 +1,52 @@
+/*
+ * File: proj4CorrelEnglishBogatyrev.java-keywords.css
+ * Names: Cassidy Correl, Nick English, Philipp Bogatyrev
+ * Class: CS361
+ * Project 4
+ * Date: 2/28/2022
+ */
+
+ /* style keywords */
+.keyword {
+    -fx-fill: purple;
+    -fx-font-weight: bold;
+}
+
+/* style ([{ */
+.paren {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.bracket {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.brace {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+
+/* style semicolons */
+.semicolon {
+    -fx-font-weight: bold;
+}
+
+/* style strings */
+.string {
+    -fx-fill: blue;
+}
+
+/* comments */
+.comment {
+	-fx-fill: cadetblue;
+}
+
+/* style integer constants */
+.finalInt {
+    -fx-fill: firebrick;
+}
+
+/* highlight current line */
+.paragraph-box:has-caret {
+    -fx-background-color: #f2f9fc;
+}
