@@ -66,7 +66,6 @@ public class Controller {
         dialogHelper = new DialogHelpers(tabPane, tabHelper, fileHelper, filenameFileMap,
                 textHasChangedMap);
         tabHelper.createCodeAreaForTab(tabHelper.getCurrentTab());
-
     }
 
     /**
@@ -86,6 +85,7 @@ public class Controller {
     @FXML
     private boolean handleSaveAs(){
         return dialogHelper.saveAsDialog();
+
     }
 
     /**

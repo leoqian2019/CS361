@@ -79,10 +79,6 @@ public class CodeAreaHelpers {
         AnchorPane.setRightAnchor(newPane, 0.0);
         tab.setContent(ap);
 
-        // add event handler for new code area
-        this.getCurrentCodeArea().setOnKeyTyped(event -> {
-            textHasChangedMap.put(this.getCurrentTab(),true);
-        });
     }
 
     /**

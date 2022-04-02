@@ -1,0 +1,49 @@
+/*
+ * File: proj6EnglishHillisonQian.DarkMode.css
+ * Names: Nick English, Nico Hillison, Leo Qian
+ * Class: CS361
+ * Project 6
+ * Date: 3/18/2022
+ */
+
+/* Style the buttons */
+.compileButton  {
+    -fx-background-color: paleturquoise;
+    -fx-border-radius: .25em;
+    -fx-background-radius: .25em;
+    -fx-border-color: #000000;
+}
+
+.compileAndRunButton  {
+    -fx-background-color: palegreen;
+    -fx-border-radius: .25em;
+    -fx-background-radius: .25em;
+    -fx-border-color: #000000;
+}
+
+.stopButton {
+    -fx-background-color: palevioletred;
+    -fx-border-radius: .25em;
+    -fx-background-radius: .25em;
+    -fx-border-color: #000000;
+}
+
+/* Change root theme to dark */
+.root {
+    -fx-base: rgba(60, 63, 65, 255); // dark
+}
+
+/* change background of codeAreas */
+.codearea{
+    -fx-background-color: rgba(60, 63, 65, 255);;
+}
+
+/* set text light */
+.text {
+    -fx-fill: white;
+}
+
+/* make line selector light */
+.paragraph-box:has-caret {
+    -fx-background-color: rgba(100, 105, 108, 255) !important;
+}

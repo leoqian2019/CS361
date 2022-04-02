@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * File: proj6EnglishHillisonQian.Controller.java
+ * Names: Nick English, Nico Hillison, Leo Qian
+ * Class: CS361
+ * Project 6
+ * Date: 3/18/2022
+-->
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+
+
+
+<!-- Encase all elements in a resizing box -->
+<?import org.fxmisc.richtext.StyleClassedTextArea?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ContextMenu?>
+<?import com.sun.javafx.scene.control.ContextMenuContent.ArrowMenuItem?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+      minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@Main.css"
+      xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="proj6EnglishHillisonQian.Controller">
+
+    <!-- Create a bar for the main menu -->
+    <MenuBar>
+
+        <!-- Create the File menu -->
+        <Menu mnemonicParsing="false" text="File">
+            <MenuItem mnemonicParsing="false" onAction="#handleAbout"
+                      text="About..." />
+            <SeparatorMenuItem disable="true" mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#handleNew"
+                      text="New " accelerator="Shortcut+N"/>
+            <MenuItem mnemonicParsing="false" onAction="#handleOpen"
+                      text="Open..." accelerator="Shortcut+O"/>
+            <MenuItem fx:id="close" mnemonicParsing="false" onAction="#handleClose"
+                      text="Close " accelerator="Shortcut+W"/>
+            <MenuItem fx:id="save" mnemonicParsing="false" onAction="#handleSave"
+                      text="Save" accelerator="Shortcut+S"/>
+            <MenuItem fx:id="saveAs" mnemonicParsing="false" onAction="#handleSaveAs"
+                      text="Save as..." accelerator="Shortcut+Alt+Shift+S"/>
+            <SeparatorMenuItem disable="true" mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" onAction="#handleExit"
+                      text="Exit" accelerator="Shortcut+Q"/>
+        </Menu>
+
+        <!-- Create the Edit menu -->
+        <Menu fx:id="edit" mnemonicParsing="false" text="Edit">
+            <MenuItem mnemonicParsing="false"
+                      text="Undo" onAction="#handleUndo" accelerator="Shortcut+Z"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Redo" onAction="#handleRedo" accelerator="Shortcut+Shift+Z"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Cut" onAction="#handleCut" accelerator="Shortcut+X"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Copy" onAction="#handleCopy" accelerator="Shortcut+C"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Paste" onAction="#handlePaste" accelerator="Shortcut+P"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Select all" onAction="#handleSelectAll" accelerator="Shortcut+A"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Toggle Comment" onAction="#handleToggleComment" accelerator="Shortcut+/"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Indent Line" onAction="#handleIndent" accelerator="Shortcut+T"/>
+            <MenuItem mnemonicParsing="false"
+                      text="Unindent Line" onAction="#handleUnindent" accelerator="Shortcut+Shift+T"/>
+        </Menu>
+
+        <Menu mnemonicParsing="false" text="Preferences">
+            <MenuItem mnemonicParsing="false" id="changeMode"
+                      text="Toggle Dark Mode" onAction="#changeVisualMode"/>
+            <Menu mnemonicParsing="false"
+                      text="Set Font" fx:id="font">
+                <MenuItem mnemonicParsing="false" id="consolas" text="consolas"
+                          onAction="#changeFont"/>
+                <MenuItem mnemonicParsing="false" id="arial" text="arial"
+                          onAction="#changeFont"/>
+                <MenuItem mnemonicParsing="false" id="Monospaced" text="monospaced"
+                          onAction="#changeFont"/>
+                <MenuItem mnemonicParsing="false" id="Helvetica" text="helvetica"
+                          onAction="#changeFont"/>
+                <MenuItem mnemonicParsing="false" id="impact" text="impact"
+                          onAction="#changeFont"/>
+            </Menu>
+            <MenuItem mnemonicParsing="false" id="increaseFontsize"
+                      text="Increase Font Size" onAction="#increaseFontSize"
+                      accelerator="Shortcut+Up"/>
+            <MenuItem mnemonicParsing="false" id="decreaseFontsize"
+                      text="Decrease Font Size" onAction="#decreaseFontSize"
+                      accelerator="Shortcut+Down"/>
+        </Menu>
+    </MenuBar>
+
+    <!-- Construct toolbar for buttons -->
+    <ToolBar prefHeight="40.0" prefWidth="200.0">
+        <Button id="compile" fx:id="compile" mnemonicParsing="false"
+                styleClass="compileButton" stylesheets="@Main.css" text="Compile"
+                onAction="#compile"/>
+        <Button id="compileAndRun" fx:id="compileAndRun" mnemonicParsing="false"
+                styleClass="compileAndRunButton" stylesheets="@Main.css"
+                text="Compile and Run" onAction="#compileAndRun"/>
+        <Button id="stop" fx:id="stop" mnemonicParsing="false"
+                styleClass="stopButton" stylesheets="@Main.css" text="Stop"
+                onAction="#stop"/>
+    </ToolBar>
+
+    <!-- Make a tab pane to hold all open tabs, give it an initial tab -->
+    <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0"
+             tabClosingPolicy="ALL_TABS" VBox.vgrow="ALWAYS">
+        <Tab text="Untitled Tab" onCloseRequest="#handleClose">
+            <AnchorPane>
+
+            </AnchorPane>
+        </Tab>
+    </TabPane>
+
+    <Separator AnchorPane.bottomAnchor=".0" AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="300.0"/>
+
+    <StyleClassedTextArea  fx:id="console" layoutY="200" prefHeight="100.0" prefWidth="512.0"
+                          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="400.0"
+                           id="console"/>
+
+    <fx:define>
+        <ContextMenu fx:id="codeContextMenu">
+            <items>
+                <MenuItem mnemonicParsing="false"
+                          text="Cut" onAction="#handleCut" accelerator="Shortcut+X"/>
+                <MenuItem mnemonicParsing="false"
+                          text="Copy" onAction="#handleCopy" accelerator="Shortcut+C"/>
+                <MenuItem mnemonicParsing="false"
+                          text="Paste" onAction="#handlePaste" accelerator="Shortcut+P"/>
+                <MenuItem mnemonicParsing="false"
+                          text="Comment Line" onAction="#handleToggleComment"
+                          accelerator="Shortcut+/"/>
+            </items>
+        </ContextMenu>
+        <ContextMenu fx:id="tabContextMenu">
+            <items>
+                <MenuItem mnemonicParsing="false" onAction="#handleClose"
+                          text="Close " accelerator="Shortcut+W"/>
+                <MenuItem mnemonicParsing="false" onAction="#handleSave"
+                          text="Save" accelerator="Shortcut+S"/>
+                <MenuItem mnemonicParsing="false" onAction="#handleSaveAs"
+                          text="Save as..." accelerator="Shortcut+Alt+Shift+S"/>
+            </items>
+        </ContextMenu>
+    </fx:define>
+
+</VBox>
