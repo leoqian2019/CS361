@@ -747,7 +747,7 @@ public class Parser
         String[] files;
         if(args.length < 1){
             files = new String[1];
-            files[0] = ("ParserTestEnglishHillisonQian.btm");
+            files[0] = ("src/proj8EnglishHillisonQian/bantam/parser/ParserTestEnglishHillisonQian.btm");
         } else {
             files = args;
         }
@@ -767,7 +767,8 @@ public class Parser
                 }
             }
             catch (CompilationException e){
-                System.out.println("Compilation error: " + e.getErrorHandler().getErrorList());
+                System.out.println("Compilation error: " + e.getErrorHandler().
+                        getErrorList());
                 continue;
             }
             errorHandler.clear();
