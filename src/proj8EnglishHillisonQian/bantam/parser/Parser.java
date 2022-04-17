@@ -13,6 +13,7 @@
  */
 package proj8EnglishHillisonQian.bantam.parser;
 
+import org.reactfx.value.Var;
 import proj8EnglishHillisonQian.bantam.ast.*;
 import proj8EnglishHillisonQian.bantam.lexer.Scanner;
 import proj8EnglishHillisonQian.bantam.lexer.Token;
@@ -601,7 +602,7 @@ public class Parser
     //                              <StringConst> | <VarExpr>
     // <VarExpr> ::= <VarExprPrefix> <Identifier> <VarExprSuffix>
     // <VarExprPrefix> ::= SUPER . | THIS . | EMPTY
-    // <VarExprSuffix> ::= ( <Arguments> ) | EMPTY
+    // <VarExprSuffix> ::= . <Identifier> ( <Arguments> ) | ( <Arguments>) | EMPTY
     private Expr parsePrimary() {
         int pos = currentToken.position;
         if(currentToken.kind == LPAREN){
@@ -640,11 +641,26 @@ public class Parser
             currentToken = scanner.scan();
         }
         String name = parseIdentifier();
+        ref = new VarExpr(pos,ref,name);
+
+        if(currentToken.kind != DOT && currentToken.kind != LPAREN){
+            return ref;
+        }
+
+        while(currentToken.kind == DOT){
+            pos = currentToken.position;
+            currentToken = scanner.scan();
+            name = parseIdentifier();
+            ref = new VarExpr(pos,ref,name);
+        }
+
         if(currentToken.kind != LPAREN){
-            return new VarExpr(pos, ref, name);
+            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting ( before arg list");
+            throw new CompilationException(errorHandler);
         }
         currentToken = scanner.scan();
         ExprList args = parseArguments();
+
         if(currentToken.kind != RPAREN){
             errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting ) after arg list");
             throw new CompilationException(errorHandler);
@@ -703,11 +719,6 @@ public class Parser
     //----------------------------------------
     //Terminals
 
-    private String parseOperator() {
-        return currentToken.spelling;
-    }
-
-
     private String parseIdentifier() {
         if(currentToken.kind != IDENTIFIER){
             errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting Identifier, found " + currentToken.kind);
@@ -716,26 +727,6 @@ public class Parser
         String name = currentToken.spelling;
         currentToken = scanner.scan();
         return name;
-    }
-
-
-    private ConstStringExpr parseStringConst() {
-        //...save the currentToken's string to a local variable...
-        //...advance to the next token...
-        //...return a new ConstStringExpr containing the string...
-        String currentString = currentToken.spelling;
-        int currentPos = currentToken.position;
-        currentToken = scanner.scan();
-        return new ConstStringExpr(currentPos, currentString);
-    }
-
-
-    private ConstIntExpr parseIntConst() {
-        return new ConstIntExpr(currentToken.position, currentToken.spelling);
-    }
-
-    private ConstBooleanExpr parseBoolean() {
-        return new ConstBooleanExpr(currentToken.position, currentToken.spelling);
     }
 
     /**
