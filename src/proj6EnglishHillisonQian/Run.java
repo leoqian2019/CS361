@@ -18,12 +18,14 @@ public class Run extends Thread{
     private AlertHandler alertHandler;
     private StyleClassedTextArea console;
     private String errorMessage;
+    private  Controller controller;
 
-    public Run(File fileToCompile, StyleClassedTextArea console) {
+    public Run(File fileToCompile, StyleClassedTextArea console, Controller controller) {
         this.fileToCompile = fileToCompile;
         this.alertHandler = new AlertHandler();
         this.console = console;
         this.errorMessage = null;
+        this.controller = controller;
     }
 
     /**
@@ -38,7 +40,7 @@ public class Run extends Thread{
                     this.fileToCompile.getName().replace(".java", ""));
             pb.redirectErrorStream(true);
             Process p = pb.start();
-            Controller.outputStream = p.getOutputStream();
+            this.controller.outputStream = p.getOutputStream();
 
             InputStream processInputStream = p.getInputStream();
             int byteValueFromRead;

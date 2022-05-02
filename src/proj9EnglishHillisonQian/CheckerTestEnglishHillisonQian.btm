@@ -1,0 +1,78 @@
+class A{
+    int one = 1;
+    void main(){
+        var i = 1;  //legal declaration
+
+        // check for loop conditions
+        // empty
+        for(;;){
+            i++; //valid increment
+            break; //valid break
+        }
+        //invalid assign/compare
+        for(i = "1"; i<"a"; i=i+1){
+            k++; //illegal increment
+        }
+        //undeclared var, comparison instead of init, increment instead of comparison
+        for(a < 10; a++; a = 1){
+        }
+        //increment instead of init
+        for(i++;i==1;i=2){
+        }
+        //legal for loop
+        for(i=0; i<2; i++){
+        }
+
+        //illegal assignment
+        i = "1";
+
+        //illegal break
+        break;
+
+        //dispatches
+        var a = goodMethod(1); //illegal - wrong params
+        a = goodMethod(); //legal dispatch
+        var b = badMethod(); //illegal - nonexistant method
+
+        //more assignments
+        a = i*2; //legal
+        a = k*2; //illegal
+
+        //casts
+        cast(int, i); //legal
+        cast(type, i); //illegal
+    }
+
+    int goodMethod(){
+        var a = this.return2(); //legal, testing this.foo()
+        return true; // illegal return type
+    }
+
+    int return2(){ // helper test method, legal
+        return 2;
+    }
+}
+
+class B extends A{
+    int two = super.return2(); //legal, test super.foo()
+
+    int methodInB(){ //legal helper
+        return 1;
+    }
+
+    int main(){
+        two = this.return2(); // legal - no method in this, but in super
+        var three = two;
+        var four = super.methodInB(); // illegal - method in this, not super
+        var five = methodInB(); // legal
+        return two;
+    }
+}
+
+class C{
+    A classA = new A();
+    void main(){
+        var e = classA.goodMethod();
+    }
+
+}

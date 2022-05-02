@@ -11,17 +11,16 @@
  * EMPTY indicates a rule with an empty right hand side.
  * All other symbols in the rules are terminals.
  */
-package proj8EnglishHillisonQian.bantam.parser;
+package proj9EnglishHillisonQian.bantam.parser;
 
-import org.reactfx.value.Var;
-import proj8EnglishHillisonQian.bantam.ast.*;
-import proj8EnglishHillisonQian.bantam.lexer.Scanner;
-import proj8EnglishHillisonQian.bantam.lexer.Token;
-import proj8EnglishHillisonQian.bantam.treedrawer.Drawer;
-import proj8EnglishHillisonQian.bantam.util.CompilationException;
-import proj8EnglishHillisonQian.bantam.util.Error;
-import proj8EnglishHillisonQian.bantam.util.ErrorHandler;
-import static proj8EnglishHillisonQian.bantam.lexer.Token.Kind.*;
+import proj9EnglishHillisonQian.bantam.ast.*;
+import proj9EnglishHillisonQian.bantam.lexer.Scanner;
+import proj9EnglishHillisonQian.bantam.lexer.Token;
+import proj9EnglishHillisonQian.bantam.treedrawer.Drawer;
+import proj9EnglishHillisonQian.bantam.util.CompilationException;
+import proj9EnglishHillisonQian.bantam.util.Error;
+import proj9EnglishHillisonQian.bantam.util.ErrorHandler;
+import static proj9EnglishHillisonQian.bantam.lexer.Token.Kind.*;
 
 /**
  * Reads in Tokens from a Scanner and constructs an AST.
@@ -57,6 +56,7 @@ public class Parser
         int position = currentToken.position;
         ClassList clist = new ClassList(position);
 
+        // continue to parse the class until reach the end of the file
         while (currentToken.kind != EOF) {
             Class_ aClass = parseClass();
             clist.addElement(aClass);
@@ -69,30 +69,25 @@ public class Parser
     // <Class> ::= CLASS <Identifier> <ExtendsClause> { <MemberList> }
     // <ExtendsClause> ::= EXTENDS <Identifier> | EMPTY
     // <MemberList> ::= EMPTY | <Member> <MemberList>
-    private Class_ parseClass() throws  CompilationException{
-
-        if(currentToken.kind != CLASS){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting class");
-            throw new CompilationException(errorHandler);
-        }
+    private Class_ parseClass(){
+        // if this is not a class token, throw an error message
+        advanceIfTokenMatchesKind(CLASS);
 
         int pos = currentToken.position;
-        currentToken = scanner.scan();
+        // scan the name of the class
         String name = parseIdentifier();
 
-        String parent = null;
+        String parent = "Object";
+
         if(currentToken.kind == EXTENDS){
             currentToken = scanner.scan();
             parent = parseIdentifier();
         }
 
-        if (currentToken.kind != LCURLY) {
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid class declaration");
-            throw new CompilationException(errorHandler);
-        }
+        advanceIfTokenMatchesKind(LCURLY);
 
-        currentToken = scanner.scan();
         MemberList members = new MemberList(currentToken.position);
+        // continue to add members to the memberList until reaches the right curly brace
         while(currentToken.kind != RCURLY){
             members.addElement(parseMember());
         }
@@ -115,31 +110,19 @@ public class Parser
         // if this member is not a method
         if(currentToken.kind != LPAREN){
             Expr initVal = null;
+            // if the field has an initial value
             if(currentToken.kind != SEMICOLON) {
-                if(currentToken.kind == ASSIGN){
-                    currentToken = scanner.scan();
-                    initVal = parseExpression();
-                    if(currentToken.kind != SEMICOLON){
-                        errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid field declaration - missing ';'");
-                        throw new CompilationException(errorHandler);
-                    }
-                }
-                else{
-                    errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid field declaration - missing '='");
-                    throw new CompilationException(errorHandler);
-                }
-
+                advanceIfTokenMatchesKind(ASSIGN);
+                initVal = parseExpression();
+                advanceIfTokenMatchesKind(SEMICOLON);
+            } else {
+                currentToken = scanner.scan();
             }
-            currentToken = scanner.scan();
             return new Field(pos, type, name, initVal);
         } else {
             currentToken = scanner.scan();
             FormalList params = parseParameters();
-            if(currentToken.kind != RPAREN){
-                errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid method declaration");
-                throw new CompilationException(errorHandler);
-            }
-            currentToken = scanner.scan();
+            advanceIfTokenMatchesKind(RPAREN);
             StmtList body = parseBlock().getStmtList();
             return new Method(pos, type, name, params, body);
         }
@@ -187,18 +170,11 @@ public class Parser
     // <WhileStmt> ::= WHILE ( <Expression> ) <Stmt>
     private Stmt parseWhile() {
         int pos = currentToken.position;
+        // skip the word "WHILE" and continue to scan
         currentToken = scanner.scan();
-        if(currentToken.kind != LPAREN){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid while - missing (");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(LPAREN);
         Expr expr = parseExpression();
-        if(currentToken.kind != RPAREN){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid while - missing )");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+       advanceIfTokenMatchesKind(RPAREN);
         Stmt stmt = parseStatement();
         return new WhileStmt(pos, expr, stmt);
     }
@@ -209,15 +185,14 @@ public class Parser
         Expr expr = null;
         int pos = currentToken.position;
         currentToken = scanner.scan();
-
+        // if the return function has something to return
         if(currentToken.kind != SEMICOLON){
             expr = parseExpression();
-            if(currentToken.kind != SEMICOLON){
-                errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid return statement");
-                throw new CompilationException(errorHandler);
-            }
+            advanceIfTokenMatchesKind(SEMICOLON);
         }
-        currentToken = scanner.scan();
+        else{
+            currentToken = scanner.scan();
+        }
         return new ReturnStmt(pos, expr);
     }
 
@@ -226,12 +201,7 @@ public class Parser
     private Stmt parseBreak() {
         int pos = currentToken.position;
         currentToken = scanner.scan();
-
-        if(currentToken.kind != SEMICOLON){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid break");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(SEMICOLON);
         return new BreakStmt(pos);
     }
 
@@ -240,12 +210,7 @@ public class Parser
     private ExprStmt parseExpressionStmt() {
         int pos = currentToken.position;
         Expr expr = parseExpression();
-
-        if(currentToken.kind != SEMICOLON){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid expr - missing ;");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(SEMICOLON);
         return new ExprStmt(pos, expr);
     }
 
@@ -255,19 +220,14 @@ public class Parser
     private DeclStmt parseVarDeclaration() {
         int pos = currentToken.position;
         currentToken = scanner.scan();
+        // check for the name of the var declaration
         String name = parseIdentifier();
 
-        if(currentToken.kind != ASSIGN){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid var declaration - need '='");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(ASSIGN);
+
+        // check for the init of the var
         Expr init = parseExpression();
-        if(currentToken.kind != SEMICOLON){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid var declaration - need ';'");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(SEMICOLON);
         return new DeclStmt(pos, name, init);
     }
 
@@ -280,36 +240,27 @@ public class Parser
         int pos = currentToken.position;
         Expr start = null;
         Expr terminate = null;
-        Expr increament = null;
-        Stmt body = null;
+        Expr increment = null;
         currentToken = scanner.scan();
-        if(currentToken.kind == LPAREN){
-            currentToken = scanner.scan();
-            if(currentToken.kind != RPAREN){
-                if(currentToken.kind != SEMICOLON){
-                    start = parseExpression();
-                } else {currentToken = scanner.scan();}
-                if(currentToken.kind == SEMICOLON){
-                    currentToken = scanner.scan();
-                    if(currentToken.kind != SEMICOLON) {
-                        terminate = parseExpression();
-                    } else {currentToken = scanner.scan();}
-                    if(currentToken.kind == SEMICOLON){
-                        currentToken = scanner.scan();
-                        if(currentToken.kind != SEMICOLON) {
-                            increament = parseExpression();
-                        } else {currentToken = scanner.scan();}
-                    }
-                }
-            }
-            if(currentToken.kind == RPAREN){
-                currentToken = scanner.scan();
-                body = parseStatement();
-                return new ForStmt(pos,start,terminate,increament,body);
-            }
+        advanceIfTokenMatchesKind(LPAREN);
+        // if the start statement is initialized
+        if(currentToken.kind != SEMICOLON){
+            start = parseExpression();
         }
-        errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid for statement, found " + currentToken.spelling);
-        throw new CompilationException(errorHandler);
+        advanceIfTokenMatchesKind(SEMICOLON);
+        // check if the termination statement is there
+        if(currentToken.kind != SEMICOLON) {
+            terminate = parseExpression();
+        }
+        advanceIfTokenMatchesKind(SEMICOLON);
+        // check if the increment expression is there
+        if(currentToken.kind != RPAREN) {
+            increment = parseExpression();
+        }
+        advanceIfTokenMatchesKind(RPAREN);
+        Stmt body = parseStatement();
+        return new ForStmt(pos,start,terminate,increment,body);
+
     }
 
 
@@ -318,16 +269,11 @@ public class Parser
     private BlockStmt parseBlock() {
         int pos = currentToken.position;
         StmtList statements = new StmtList(pos);
-
-        if(currentToken.kind == LCURLY){
-            currentToken = scanner.scan();
-            while(currentToken.kind != RCURLY){
-                statements.addElement(parseStatement());
-            }
-        }
-        else{
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid block statement - missing '{'");
-            throw new CompilationException(errorHandler);
+        // check if the block start with Left curly
+        advanceIfTokenMatchesKind(LCURLY);
+        // continue to add statement to statement list until right curly
+        while(currentToken.kind != RCURLY){
+            statements.addElement(parseStatement());
         }
         currentToken = scanner.scan();
         return new BlockStmt(pos,statements);
@@ -343,21 +289,16 @@ public class Parser
         Stmt elseStmt = null;
 
         currentToken = scanner.scan();
-        if(currentToken.kind == LPAREN){
+        advanceIfTokenMatchesKind(LPAREN);
+        pred = parseExpression();
+        advanceIfTokenMatchesKind(RPAREN);
+        then = parseStatement();
+        // if the if statement has an else clause, read the else
+        if(currentToken.kind == ELSE){
             currentToken = scanner.scan();
-            pred = parseExpression();
-            if(currentToken.kind == RPAREN){
-                currentToken = scanner.scan();
-                then = parseStatement();
-                if(currentToken.kind == ELSE){
-                    currentToken = scanner.scan();
-                    elseStmt = parseStatement();
-                }
-                return new IfStmt(pos,pred,then,elseStmt);
-            }
+            elseStmt = parseStatement();
         }
-        errorHandler.register(Error.Kind.PARSE_ERROR, "Invalid if statement");
-        throw new CompilationException(errorHandler);
+        return new IfStmt(pos,pred,then,elseStmt);
     }
 
 
@@ -371,6 +312,7 @@ public class Parser
     private Expr parseExpression() {
         int pos = currentToken.position;
         Expr expr = parseOrExpr();
+        // if this is an assignment expression, return an assignment expression object
         if(currentToken.kind == ASSIGN && (expr instanceof VarExpr)){
             currentToken = scanner.scan();
             Expr assign = parseExpression();
@@ -387,6 +329,7 @@ public class Parser
         Expr left;
 
         left = parseAndExpr();
+        // keep building the binary logic or expression when there's consecutive || symbol
         while (currentToken.spelling.equals("||")) {
             currentToken = scanner.scan();
             Expr right = parseAndExpr();
@@ -402,6 +345,7 @@ public class Parser
     private Expr parseAndExpr() {
         int pos = currentToken.position;
         Expr left = parseEqualityExpr();
+        // continue to build binary logic and expression when there's multiple &&
         while(currentToken.spelling.equals("&&")){
             currentToken = scanner.scan();
             Expr right = parseEqualityExpr();
@@ -417,21 +361,25 @@ public class Parser
     private Expr parseEqualityExpr() {
         int pos = currentToken.position;
         Expr left = parseRelationalExpr();
+        // if there's no comparison occurred, return the relational expression
         if(!currentToken.spelling.equals("==") && !currentToken.spelling.equals("!=")){
             return left;
         }
         String op = currentToken.spelling;
         currentToken = scanner.scan();
         Expr right = parseRelationalExpr();
+
+        // if equality is compared, return binary compare equality expression
         if(op.equals("==")){
             return new BinaryCompEqExpr(pos,left,right);
         }
+        // otherwise, return binary compare not equal expression
         return new BinaryCompNeExpr(pos,left,right);
     }
 
 
     // <RelationalExpr> ::= <AddExpr> | <AddExpr> <ComparisonOp> <AddExpr>
-    // //<ComparisonOp>::= < | > | <= | >= | INSTANCEOF
+    // <ComparisonOp>::= < | > | <= | >= | INSTANCEOF
     private Expr parseRelationalExpr() {
         int pos = currentToken.position;
         Expr left = parseAddExpr();
@@ -468,16 +416,19 @@ public class Parser
     private Expr parseAddExpr() {
         int pos = currentToken.position;
         Expr left = parseMultExpr();
-        String op = currentToken.spelling;
-        if(currentToken.kind != PLUSMINUS){
-            return left;
+        // build the arithmetic plus or minus expression if there's more plus or minus token
+        while(currentToken.kind == PLUSMINUS){
+            String op = currentToken.spelling;
+            currentToken = scanner.scan();
+            Expr right =  parseMultExpr();
+            if(op.equals("+")){
+                left = new BinaryArithPlusExpr(pos,left,right);
+            }
+            else{
+                left = new BinaryArithMinusExpr(pos,left,right);
+            }
         }
-        currentToken = scanner.scan();
-        Expr right =  parseAddExpr();
-        if(op.equals("+")){
-            return new BinaryArithPlusExpr(pos,left,right);
-        }
-        return new BinaryArithMinusExpr(pos,left,right);
+        return left;
     }
 
 
@@ -489,19 +440,23 @@ public class Parser
     private Expr parseMultExpr() {
         int pos = currentToken.position;
         Expr left = parseNewCastOrUnary();
-        String op = currentToken.spelling;
-        if(currentToken.kind != MULDIV){
-            return left;
+
+        // build the multi/divide expression if there's more of such token
+        while(currentToken.kind == MULDIV){
+            String op = currentToken.spelling;
+            currentToken = scanner.scan();
+            Expr right =  parseNewCastOrUnary();
+            if(op.equals("*")){
+                left = new BinaryArithTimesExpr(pos,left,right);
+            }
+            else if(op.equals("/")){
+                left = new BinaryArithDivideExpr(pos,left,right);
+            }
+            else{
+                left = new BinaryArithModulusExpr(pos,left,right);
+            }
         }
-        currentToken = scanner.scan();
-        Expr right =  parseMultExpr();
-        if(op.equals("*")){
-            return new BinaryArithTimesExpr(pos,left,right);
-        }
-        if(op.equals("/")){
-            return new BinaryArithDivideExpr(pos,left,right);
-        }
-        return new BinaryArithModulusExpr(pos,left,right);
+        return left;
     }
 
     // <NewCastOrUnary> ::= <NewExpression> | <CastExpression> | <UnaryPrefix>
@@ -521,16 +476,8 @@ public class Parser
         int pos = currentToken.position;
         currentToken = scanner.scan();
         String name = parseIdentifier();
-        if(currentToken.kind != LPAREN){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting (");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
-        if(currentToken.kind != RPAREN){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting )");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(LPAREN);
+        advanceIfTokenMatchesKind(RPAREN);
         return new NewExpr(pos, name);
     }
 
@@ -539,23 +486,11 @@ public class Parser
     private Expr parseCast() {
         int pos = currentToken.position;
         currentToken = scanner.scan();
-        if(currentToken.kind != LPAREN){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting (");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(LPAREN);
         String name = parseType();
-        if(currentToken.kind != COMMA){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting ,");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(COMMA);
         Expr expr = parseExpression();
-        if(currentToken.kind != RPAREN){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting )");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(RPAREN);
         return new CastExpr(pos, name, expr);
     }
 
@@ -614,26 +549,26 @@ public class Parser
     // <VarExprSuffix> ::= . <Identifier> ( <Arguments> ) | ( <Arguments>) | EMPTY
     private Expr parsePrimary() {
         int pos = currentToken.position;
+        // check if this is an expression
         if(currentToken.kind == LPAREN){
             currentToken = scanner.scan();
             Expr expr = parseExpression();
-            if(currentToken.kind != RPAREN){
-                errorHandler.register(Error.Kind.PARSE_ERROR, "Missing ) after expression");
-                throw new CompilationException(errorHandler);
-            }
-            currentToken = scanner.scan();
+            advanceIfTokenMatchesKind(RPAREN);
             return expr;
         }
+        // check if this is an Integer Constant Expression
         if(currentToken.kind == INTCONST){
             String intCont = currentToken.getSpelling();
             currentToken = scanner.scan();
             return new ConstIntExpr(pos, intCont);
         }
+        // check if this is a boolean Constant expression
         if(currentToken.kind == BOOLEAN){
             String boolVal = currentToken.getSpelling();
             currentToken = scanner.scan();
             return new ConstBooleanExpr(pos, boolVal);
         }
+        // check if this is a string constant expression
         if(currentToken.kind == STRCONST){
             String strConst = currentToken.getSpelling();
             currentToken = scanner.scan();
@@ -644,37 +579,27 @@ public class Parser
             ref = new VarExpr(pos, null, currentToken.spelling);
             currentToken = scanner.scan();
             if(currentToken.kind != DOT){
-                errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting . after reference");
-                throw new CompilationException(errorHandler);
+                return ref;
             }
             currentToken = scanner.scan();
         }
         String name = parseIdentifier();
-        ref = new VarExpr(pos,ref,name);
+//        ref = new VarExpr(pos,ref,name);
 
         if(currentToken.kind != DOT && currentToken.kind != LPAREN){
-            return ref;
+            return new VarExpr(pos,ref,name);
         }
 
-        while(currentToken.kind == DOT){
+        if(currentToken.kind == DOT){
             pos = currentToken.position;
             currentToken = scanner.scan();
-            name = parseIdentifier();
             ref = new VarExpr(pos,ref,name);
+            name = parseIdentifier();
         }
 
-        if(currentToken.kind != LPAREN){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting ( before arg list");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(LPAREN);
         ExprList args = parseArguments();
-
-        if(currentToken.kind != RPAREN){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting ) after arg list");
-            throw new CompilationException(errorHandler);
-        }
-        currentToken = scanner.scan();
+        advanceIfTokenMatchesKind(RPAREN);
         return new DispatchExpr(pos, ref, name, args);
     }
 
@@ -730,12 +655,29 @@ public class Parser
 
     private String parseIdentifier() {
         if(currentToken.kind != IDENTIFIER){
-            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting Identifier, found " + currentToken.kind);
+            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting Identifier, found " + currentToken.kind+" at line "+currentToken.position);
             throw new CompilationException(errorHandler);
         }
         String name = currentToken.spelling;
         currentToken = scanner.scan();
         return name;
+    }
+
+    /**
+     * advance to the next token if the current token kind matches the expected token kind
+     * @param expectedKind the expected token kind
+     */
+    private void advanceIfTokenMatchesKind(Token.Kind expectedKind){
+        Token.Kind currentKind = currentToken.kind;
+        if(currentKind == expectedKind){
+            currentToken = scanner.scan();
+        }
+        // if the token doesn't match, register an error message with the line number and expected token vs. what's input
+        else{
+            errorHandler.register(Error.Kind.PARSE_ERROR, "Expecting "+expectedKind+" at line "+currentToken.position
+                    +", but "+currentKind+" was found");
+            throw new CompilationException(errorHandler);
+        }
     }
 
     /**
@@ -747,7 +689,7 @@ public class Parser
         String[] files;
         if(args.length < 1){
             files = new String[1];
-            files[0] = ("src/proj8EnglishHillisonQian/bantam/parser/ParserTestEnglishHillisonQian.btm");
+            files[0] = ("CheckerTestEnglishHillisonQian.btm");
         } else {
             files = args;
         }
@@ -765,10 +707,11 @@ public class Parser
                     System.out.println("Error Tokens Found:\n" + errorHandler.getErrorList());
                     continue;
                 }
+                // clear error handler before parsing the next file
+                errorHandler.clear();
             }
             catch (CompilationException e){
-                System.out.println("Compilation error: " + e.getErrorHandler().
-                        getErrorList());
+                System.out.println("Compilation error: " + e.getErrorHandler().getErrorList());
                 continue;
             }
             errorHandler.clear();

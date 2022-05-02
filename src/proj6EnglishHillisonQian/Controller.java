@@ -502,7 +502,7 @@ public class Controller {
             File currentFile = tabFileMap.get(tabHelper.getCurrentTab());
 
             //stop.setDisable(false);
-            Run run = new Run(currentFile, console);
+            Run run = new Run(currentFile, console, this);
             run.start();
 
             while (true) {

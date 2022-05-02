@@ -1,16 +1,23 @@
-package proj8EnglishHillisonQian.bantam.visitor;
+/*
+ * File: MainMethodFinder.java
+ * Authors: Nick English, Nico Hillison, Leo Qian
+ * Date: 4/23/22
+ *
+ */
+package proj9EnglishHillisonQian.bantam.semant;
 
-import proj8EnglishHillisonQian.bantam.ast.*;
+import proj9EnglishHillisonQian.bantam.ast.*;
+import proj9EnglishHillisonQian.bantam.visitor.Visitor;
 
-public class MainMethodFinder extends Visitor{
+public class MainMethodFinder extends Visitor {
     private boolean hasMain = false;
 
     @Override
     public Object visit(Method methodNode){
         // if the method has a name "main"
-        if(methodNode.getName().equals("main") &&
+        if("main".equals(methodNode.getName()) &&
                 // if the method has a return type "void"
-                methodNode.getReturnType().equals("void") &&
+                "void".equals(methodNode.getReturnType()) &&
                 // if the method has no parameter
                 methodNode.getFormalList().getSize() == 0) {
             hasMain = true;
