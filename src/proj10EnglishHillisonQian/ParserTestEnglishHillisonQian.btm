@@ -1,0 +1,59 @@
+/*
+ * File: ParserTestEnglishHillisonQian.btm
+ * Authors: Nick English, Nico Hillison, Leo Qian
+ * Date: 4/16/22
+ */
+
+class IDC{
+    String hi = "Hello";
+    int b;
+
+    void main(){
+        if(true){
+            var a = 50;
+            a = 30 + 5 - (10 / 2) * 1 % 2;
+            a++;
+            a = -a;
+            a--;
+            --a;
+            ++a;
+            var hello = this.hi;
+            var c = this.return1AsString();
+            var d = 3-4-5;
+            var e = 30/4/2;
+        }
+        else{
+        }
+        if((a <= 100 && a != 0) || (a>=1 && 4>1 && 1<9)){
+        }
+        for(i = 0; i == 10; i++){
+        }
+        for(;;){
+        }
+        while(false){
+            break;
+        }
+        cast(String, i);
+        var obj = new Object();
+
+        var one = return1AsString();
+        var tf = isEqualValue(1, hi);
+        tf = !tf;
+        return;
+
+    }
+
+    bool isEqualValue(int b, String g){
+        return cast(int, g) == b;
+    }
+
+    String return1AsString(){
+        return "1";
+    }
+
+}
+class SecondClass extends IDC{
+    String hello = super.hi;
+}
+class ThirdClass{
+}

@@ -1,0 +1,36 @@
+/*
+ * File: proj10EnglishHillisonQian.Controller.java
+ * Names: Nick English, Nico Hillison, Leo Qian
+ * Class: CS361
+ * Project 10
+ * Date: 5/5/2022
+ */
+
+/* Style the buttons */
+.compileButton  {
+    -fx-background-color: paleturquoise;
+    -fx-border-radius: .25em;
+    -fx-background-radius: .25em;
+    -fx-border-color: #000000;
+}
+
+.compileAndRunButton  {
+    -fx-background-color: palegreen;
+    -fx-border-radius: .25em;
+    -fx-background-radius: .25em;
+    -fx-border-color: #000000;
+}
+
+.stopButton {
+    -fx-background-color: palevioletred;
+    -fx-border-radius: .25em;
+    -fx-background-radius: .25em;
+    -fx-border-color: #000000;
+}
+
+.checkButton {
+    -fx-background-color: orange;
+    -fx-border-radius: .25em;
+    -fx-background-radius: .25em;
+    -fx-border-color: #000000;
+}

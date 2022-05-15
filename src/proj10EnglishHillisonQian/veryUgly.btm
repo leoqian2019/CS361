@@ -1,0 +1,7 @@
+/*main class*/class Main{int a=1;String b="13414";void main(){var c=a;}int return1(){return 1;}}
+/*second class*/class B{int  return2(){return 2;}}
+class C extends B{int two=super.return2();int methodInB(){return 1;}int main(){two = this.return2();var three = two;var five = methodInB();return two;}}
+
+
+
+

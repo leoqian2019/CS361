@@ -1,0 +1,52 @@
+/*
+ * File: proj10EnglishHillisonQian.Controller.java
+ * Names: Nick English, Nico Hillison, Leo Qian
+ * Class: CS361
+ * Project 10
+ * Date: 5/5/2022
+ */
+
+ /* style keywords */
+.keyword {
+    -fx-fill: mediumpurple;
+    -fx-font-weight: bold;
+}
+
+/* style ([{ */
+.paren {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.bracket {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.brace {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+
+/* style semicolons */
+.semicolon {
+    -fx-font-weight: bold;
+}
+
+/* style strings */
+.string {
+    -fx-fill: steelblue;
+}
+
+/* comments */
+.comment {
+	-fx-fill: cadetblue;
+}
+
+/* style integer constants */
+.finalInt {
+    -fx-fill: firebrick;
+}
+
+/* highlight current line */
+.paragraph-box:has-caret {
+    -fx-background-color: #f2f9fc;
+}

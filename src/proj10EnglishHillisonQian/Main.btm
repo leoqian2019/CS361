@@ -1,0 +1,18 @@
+/* Main Class does x */
+class Main {
+	int b = 1;
+	String d = "s";
+	boolean e = false;
+
+	// the main method
+	void main() {
+		// inline comment
+		/* block comment*/
+		var a = 1;
+		var c = a > 2;
+	}
+}
+
+
+
+
