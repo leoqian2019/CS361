@@ -418,7 +418,7 @@ public class SemanticAnalyzer
         String[] files;
         if(args.length < 1){
             files = new String[1];
-            files[0] = ("CheckerTestEnglishHillisonQian.btm");
+            files[0] = ("src/proj9EnglishHillisonQian/bantam/CheckerTestEnglishHillisonQian.btm");
         } else {
             files = args;
         }

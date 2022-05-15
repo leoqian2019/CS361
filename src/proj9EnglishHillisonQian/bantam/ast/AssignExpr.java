@@ -26,6 +26,8 @@
 
 package proj9EnglishHillisonQian.bantam.ast;
 
+import proj9EnglishHillisonQian.bantam.ast.ASTNode;
+import proj9EnglishHillisonQian.bantam.ast.Expr;
 import proj9EnglishHillisonQian.bantam.visitor.Visitor;
 
 
@@ -36,7 +38,7 @@ import proj9EnglishHillisonQian.bantam.visitor.Visitor;
  * an expression (for assigning to the variable).
  *
  * @see ASTNode
- * @see Expr
+ * @see proj9EnglishHillisonQian.bantam.ast.Expr
  */
 public class AssignExpr extends Expr {
     /**
@@ -53,7 +55,7 @@ public class AssignExpr extends Expr {
     /**
      * The righthand expression for assigning to the lefthand variable
      */
-    protected Expr expr;
+    protected proj9EnglishHillisonQian.bantam.ast.Expr expr;
 
     /**
      * AssignExpr constructor
@@ -102,7 +104,7 @@ public class AssignExpr extends Expr {
      *
      * @param v bantam.visitor object
      * @return result of visiting this node
-     * @see proj9EnglishHillisonQian.bantam.visitor.Visitor
+     * @see bantam.visitor.Visitor
      */
     public Object accept(Visitor v) {
         return v.visit(this);
